@@ -1,5 +1,6 @@
 Tweak of the following library for use with STM32 and other non_AVR platforms.
 Uncomment #define AVR in DAC_MCP49xx.h for AVR.
+T. Combriat
 
 
 
