@@ -38,7 +38,7 @@ class DAC_MCP49xx {
   void setBuffer(boolean _buffer);
   void setPortWrite(boolean _port_write);
   boolean setGain(int _gain);
-  boolean setSPIDivider(int _spi_divider);
+  //boolean setSPIDivider(int _spi_divider);
   void shutdown(void);
 
   /* All of these call _output() internally */

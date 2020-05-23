@@ -78,7 +78,7 @@ setGain(int)
 	Only 1 and 2 are valid values!
 	Defaults to 1x.
 
-setSPIDivider(int)
+setSPIDivider(int) /!\ Removed in this version!
 	Sets the SPI clock frequency. See the Arduino docs: http://arduino.cc/en/Reference/SPISetClockDivider
 	Uses the same constants (SPI_CLOCK_DIV2 etc.) as in the Arduino docs.
 

@@ -31,7 +31,7 @@
 #include <SPI.h>
 #include "DAC_MCP49xx.h"
 
-DAC_MCP49xx::DAC_MCP49xx(DAC_MCP49xx::Model _model, int _ss_pin, int _LDAC_pin) : bufferVref(false), gain2x(false), port_write(false), spi_divider(SPI_CLOCK_DIV2), automaticallyLatchDual(true)
+DAC_MCP49xx::DAC_MCP49xx(DAC_MCP49xx::Model _model, int _ss_pin, int _LDAC_pin) : bufferVref(false), gain2x(false), port_write(false), automaticallyLatchDual(true)
 {
   this->ss_pin = _ss_pin;
   this->LDAC_pin = _LDAC_pin;
@@ -67,9 +67,10 @@ DAC_MCP49xx::DAC_MCP49xx(DAC_MCP49xx::Model _model, int _ss_pin, int _LDAC_pin) 
 void DAC_MCP49xx::init()
 {
   SPI.begin();
-  SPI.setBitOrder(MSBFIRST);
+  /*SPI.setBitOrder(MSBFIRST);
   SPI.setDataMode(SPI_MODE0);
-  SPI.setClockDivider(spi_divider);
+  SPI.setClockDivider(spi_divider);*/
+   SPI.beginTransaction(SPISettings(2000000000, MSBFIRST, SPI_MODE0));
 }
 
 
@@ -115,6 +116,7 @@ boolean DAC_MCP49xx::setGain(int _gain) {
 
 // Sets the SPI clock frequency. The final frequency will be the 
 // main Arduino clock divided by the divider selected here.
+/*
 boolean DAC_MCP49xx::setSPIDivider(int _div) {
   switch (_div) {
   case SPI_CLOCK_DIV2:
@@ -130,7 +132,7 @@ boolean DAC_MCP49xx::setSPIDivider(int _div) {
   default:
     return false;
   }
-}
+  }*/
 
 // Shuts the DAC down. Shutdown current is about 1/50 (typical) of active mode current.
 // My measurements say ~160-180 µA active (unloaded vout), ~3.5 µA shutdown.
