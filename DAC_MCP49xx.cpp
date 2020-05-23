@@ -133,7 +133,7 @@ boolean DAC_MCP49xx::setSPIDivider(int _div) {
 // Time to settle on an output value increases from ~4.5 µs to ~10 µs, though (according to the datasheet).
 void DAC_MCP49xx::shutdown(void) {
   // Drive chip select low
-#ifdef IS_AVR()
+#ifdef __AVR__
   if (this->port_write)
     PORTB &= 0xfb; // Clear PORTB pin 2 = arduino pin 10
   else
@@ -150,7 +150,7 @@ void DAC_MCP49xx::shutdown(void) {
   SPI.transfer(out & 0xff);
 
   // Return chip select to high
-#ifdef IS_AVR()
+#ifdef __AVR__
   if (this->port_write)
     PORTB |= (1 << 2); // set PORTB pin 2 = arduino pin 10
   else
