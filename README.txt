@@ -133,7 +133,7 @@ setPortWrite(bool)
 	Use these pins:
 
 	For the LDAC pin: PD7 (Uno: digital pin 7, Mega: digital pin 38)
-	For the CS pin: PB2 (Uno: digital pin 10, Mega: digital pin 51)
+	For the CS pin: PB2 (Uno: digital pin 10, Mega: digital pin 11)
 
 	Also note that since these are fixed, and CS cannot be shared between devices, *you can't use multiple DACs with PortWrite enabled*!
 
