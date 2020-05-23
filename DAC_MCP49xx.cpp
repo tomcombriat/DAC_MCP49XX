@@ -56,18 +56,22 @@ DAC_MCP49xx::DAC_MCP49xx(DAC_MCP49xx::Model _model, int _ss_pin, int _LDAC_pin) 
   default:
     bitwidth = 0;
   }
-
+  
   pinMode(ss_pin, OUTPUT); // Ensure that SS is set to SPI master mode
   pinMode(LDAC_pin, OUTPUT);
 
   digitalWrite(ss_pin, HIGH); // Unselect the device
   digitalWrite(LDAC_pin, HIGH); // Un-latch the output
+  }
 
+void DAC_MCP49xx::init()
+{
   SPI.begin();
   SPI.setBitOrder(MSBFIRST);
   SPI.setDataMode(SPI_MODE0);
   SPI.setClockDivider(spi_divider);
 }
+
 
 void DAC_MCP49xx::setBuffer(boolean _buffer)
 {
@@ -194,6 +198,7 @@ void DAC_MCP49xx::_output(unsigned short data, Channel chan) {
 
   // Return chip select to high
 #ifdef __AVR__
+  #warning Coucouc
   if (this->port_write)
     PORTB |= (1 << 2); // set PORTB pin 2 = arduino pin 10
   else
@@ -201,7 +206,7 @@ void DAC_MCP49xx::_output(unsigned short data, Channel chan) {
 #else
   digitalWrite(ss_pin, HIGH);
 #endif
-  
+
 }
 
 // For MCP49x1

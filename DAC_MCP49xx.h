@@ -50,6 +50,8 @@ class DAC_MCP49xx {
   void latch(void); // Actually change the output, if the LDAC pin isn't shorted to ground
   boolean setAutomaticallyLatchDual(bool _latch);
 
+  void init(); //Start the SPI
+
   private:
     void _output(unsigned short _out, Channel _chan);
     int ss_pin;
