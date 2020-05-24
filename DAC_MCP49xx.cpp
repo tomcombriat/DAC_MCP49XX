@@ -200,7 +200,6 @@ void DAC_MCP49xx::_output(unsigned short data, Channel chan) {
 
   // Return chip select to high
 #ifdef __AVR__
-  #warning Coucouc
   if (this->port_write)
     PORTB |= (1 << 2); // set PORTB pin 2 = arduino pin 10
   else
