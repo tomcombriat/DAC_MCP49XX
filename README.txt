@@ -1,5 +1,4 @@
 Tweak of the following library for use with STM32 and other non_AVR platforms.
-Uncomment #define AVR in DAC_MCP49xx.h for AVR.
 T. Combriat
 
 
@@ -116,6 +115,9 @@ latch(void)
 	Creates a low pulse on the DAC's LDAC pin (pin 5 on the DAC chip).
 	The LDAC pin can be tied to ground instead, to update automatically ASAP, in
 	which case this method does nothing.
+
+init()
+        Need to be called in setup(), for good SPI compatibility.
 
 setPortWrite(bool)
 	Note: PortWrite is not supported on the Arduino Leonardo, but should work on
