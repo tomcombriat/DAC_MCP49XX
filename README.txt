@@ -26,9 +26,11 @@ Example usage:
 #include <SPI.h>         // Remember this line!
 #include <DAC_MCP49xx.h>
 
-DAC_MCP49xx dac(DAC_MCP49xx::MCP4901, 10, 7); // DAC model, SS pin, LDAC pin
+DAC_MCP49xx dac(DAC_MCP49xx::MCP4901, 10); // DAC model, SS pin
 
-void setup() { } // No setup code is necessary
+void setup() {
+dac.init();
+ } 
 
 void loop() {
   dac.output(255);
@@ -40,6 +42,8 @@ void loop() {
 /////////////////////////////////
 
 See the example sketches for slightly more detailed examples.
+
+** LATCH has been removed for compatibility: just tie LDAC to GND **
 
 A note on latching/LDAC:
 	The way these DACs work is as follows: when a value is sent to them via
@@ -58,7 +62,7 @@ A note on latching/LDAC:
 
 Simple function overview:
 
-Constructor (DAC_MCP49xx, int SS_pin, int LDAC_pin = -1)
+Constructor (DAC_MCP49xx, int SS_pin)
 	Takes three arguments: the DAC model (MCP4901, MCP4911, MCP4921,
 	MCP4902, MCP4912 or MCP4922), the chip select pin, and the LDAC pin.
 	If the LDAC functionality isn't wanted (if you don't know, you likely don't
@@ -77,11 +81,11 @@ setGain(int)
 	Only 1 and 2 are valid values!
 	Defaults to 1x.
 
-setSPIDivider(int) /!\ Removed in this version!
+setSPIDivider(int)  ** REMOVED
 	Sets the SPI clock frequency. See the Arduino docs: http://arduino.cc/en/Reference/SPISetClockDivider
 	Uses the same constants (SPI_CLOCK_DIV2 etc.) as in the Arduino docs.
 
-setAutomaticallyLatchDual(bool)
+setAutomaticallyLatchDual(bool)    ** REMOVED
 	If true: will automatically pull the LDAC pin low after output2() is called.
 	If false: won't do the above.
 	Only relevant for the MCP49x2 dual DACs.
@@ -110,7 +114,7 @@ output2(unsigned short, unsigned short)
 	Latches the output automatically unless setAutomaticallyLatchDual() has been
 	called with 'false' as the argument.
 
-latch(void)
+latch(void)  ** REMOVED
 	Changes the output voltage based on the last value(s) sent using the output*() methods.
 	Creates a low pulse on the DAC's LDAC pin (pin 5 on the DAC chip).
 	The LDAC pin can be tied to ground instead, to update automatically ASAP, in
@@ -134,8 +138,7 @@ setPortWrite(bool)
 
 	Use these pins:
 
-	For the LDAC pin: PD7 (Uno: digital pin 7, Mega: digital pin 38)
-	For the CS pin: PB2 (Uno: digital pin 10, Mega: digital pin 11)
+	For the CS pin: PD7 (Uno: digital pin 7, Mega: digital pin 38)
 
 	Also note that since these are fixed, and CS cannot be shared between devices, *you can't use multiple DACs with PortWrite enabled*!
 

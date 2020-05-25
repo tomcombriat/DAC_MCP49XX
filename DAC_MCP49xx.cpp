@@ -31,10 +31,9 @@
 #include <SPI.h>
 #include "DAC_MCP49xx.h"
 
-DAC_MCP49xx::DAC_MCP49xx(DAC_MCP49xx::Model _model, int _ss_pin, int _LDAC_pin) : bufferVref(false), gain2x(false), port_write(false), automaticallyLatchDual(true)
+DAC_MCP49xx::DAC_MCP49xx(DAC_MCP49xx::Model _model, int _ss_pin) : bufferVref(false), gain2x(false), port_write(false)
 {
   this->ss_pin = _ss_pin;
-  this->LDAC_pin = _LDAC_pin;
 
   /* 
    * MCP49x1 models are single DACs, while MCP49x2 are dual.
@@ -58,10 +57,9 @@ DAC_MCP49xx::DAC_MCP49xx(DAC_MCP49xx::Model _model, int _ss_pin, int _LDAC_pin) 
   }
   
   pinMode(ss_pin, OUTPUT); // Ensure that SS is set to SPI master mode
-  pinMode(LDAC_pin, OUTPUT);
 
   digitalWrite(ss_pin, HIGH); // Unselect the device
-  digitalWrite(LDAC_pin, HIGH); // Un-latch the output
+
   }
 
 void DAC_MCP49xx::init()
@@ -85,16 +83,6 @@ void DAC_MCP49xx::setPortWrite(boolean _port_write)
 }
 
 
-// Only relevant for the MCP49x2 dual DACs.
-// If set, calling output2() will pull the LDAC pin low automatically,
-// which causes the output to change.
-// Not required if the LDAC pin is shorted to ground, however in that case,
-// there will be a delay between the updating of channel A and channel B.
-// If sync is desired, wire the LDAC pin to the Arduino and set this to true.
-boolean DAC_MCP49xx::setAutomaticallyLatchDual(bool _latch) {
-  automaticallyLatchDual = _latch;
-  return _latch;
-}
 
 // Sets the gain. These DACs support 1x and 2x gain.
 // vout = x/2^n * gain * VREF, where x = the argument to out(), n = number of DAC bits
@@ -141,7 +129,8 @@ void DAC_MCP49xx::shutdown(void) {
   // Drive chip select low
 #ifdef __AVR__
   if (this->port_write)
-    PORTB &= 0xfb; // Clear PORTB pin 2 = arduino pin 10
+   PORTD &= ~(1 << 7); // Uno: digital pin 7; Mega: digital pin 38
+  //PORTD &= ~(1 << 7);
   else
     digitalWrite(ss_pin, LOW);
 #else
@@ -158,7 +147,8 @@ void DAC_MCP49xx::shutdown(void) {
   // Return chip select to high
 #ifdef __AVR__
   if (this->port_write)
-    PORTB |= (1 << 2); // set PORTB pin 2 = arduino pin 10
+    PORTD |= (1 << 7); // set PORTD pin 7 = arduino pin 7 on UNO, 38 on Mega
+    //PORTD |= (1 << 7);
   else
     digitalWrite(ss_pin, HIGH);
 #else
@@ -180,7 +170,8 @@ void DAC_MCP49xx::_output(unsigned short data, Channel chan) {
   // Drive chip select low
 #ifdef __AVR__
   if (this->port_write)
-    PORTB &= 0xfb; // Clear PORTB pin 2 = arduino pin 10
+   PORTD &= ~(1 << 7); // Uno: digital pin 7; Mega: digital pin 38
+  //PORTD &= ~(1 << 7);
   else
     digitalWrite(ss_pin, LOW);
 #else
@@ -201,7 +192,8 @@ void DAC_MCP49xx::_output(unsigned short data, Channel chan) {
   // Return chip select to high
 #ifdef __AVR__
   if (this->port_write)
-    PORTB |= (1 << 2); // set PORTB pin 2 = arduino pin 10
+    PORTD |= (1 << 7); // set PORTD pin 7 = arduino pin 7 on UNO, 38 on Mega
+  //PORTD |= (1 << 7);
   else
     digitalWrite(ss_pin, HIGH);
 #else
@@ -231,50 +223,6 @@ void DAC_MCP49xx::output2(unsigned short data_A, unsigned short data_B) {
   this->_output(data_A, CHANNEL_A);
   this->_output(data_B, CHANNEL_B);
   
-  // Update the output, if desired.
-  // The reason this is only in the dual-output version is simple: it's mostly useless
-  // for the single-output version, as it would make more sense to tie the \LDAC pin
-  // to ground, or do it manually. However, there should be a single-call method
-  // to update *both* channels in sync, which wouldn't be possible with multiple
-  // separate DACs (for which there is latch()).
-  if (automaticallyLatchDual) {
-    this->latch();
   }
-}
 
-// These DACs have a function where you can change multiple DACs at the same
-// time: you call output() "sequentially", one DAC at a time, and *then*,
-// when they've all received the output data, pull the LDAC pin low on
-// all DACs at once. This function pulls the LDAC pin low for long enough 
-// for the DAC(s) to change the output.
-// If this function is undesired, you can simply tie the LDAC pin to ground.
-// When tied to ground, you need *NOT* call this function!
-void DAC_MCP49xx::latch(void) {
-  // The datasheet says CS must return high for 40+ ns before this function
-  // is called: no problems, that'd be taken care of automatically, as one
-  // clock cycle at 16 MHz is longer... and there'll be a delay of multiple.
 
-  if (LDAC_pin < 0)
-    return;
-
-  // We then need to hold LDAC low for at least 100 ns, i.e ~2 clock cycles.
-#ifdef AVR
-  if (this->port_write) {
-    // This gives ~180 ns (three clock cycles, most of which is spent low) of 
-    // low time on a Uno R3 (16 MHz), measured on a scope to make sure
-    PORTD &= ~(1 << 7); // Uno: digital pin 7; Mega: digital pin 38
-    asm volatile("nop");
-    PORTD |= (1 << 7);
-  }
-  else {
-    // This takes far, FAR longer than the above despite no NOP; digitalWrite
-    // is SLOW! For comparison: the above takes 180 ns, this takes... 3.8 us,
-    // or 3800 ns, 21 times as long - WITHOUT having a delay in there!
-    digitalWrite(LDAC_pin, LOW);
-    digitalWrite(LDAC_pin, HIGH);
-  }
-#else
-  digitalWrite(LDAC_pin, LOW);
-  digitalWrite(LDAC_pin, HIGH);
-#endif
-}

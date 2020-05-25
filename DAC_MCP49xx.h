@@ -34,7 +34,7 @@ class DAC_MCP49xx {
 	  CHANNEL_B = 1
   };
     
-  DAC_MCP49xx(Model _model, int _ss_pin, int _ldac_pin = -1);
+  DAC_MCP49xx(Model _model, int _ss_pin);
   void setBuffer(boolean _buffer);
   void setPortWrite(boolean _port_write);
   boolean setGain(int _gain);
@@ -47,21 +47,17 @@ class DAC_MCP49xx {
   void outputB(unsigned short _out);
   void output2(unsigned short _out, unsigned short _out2); // For MCP49x2
 
-  void latch(void); // Actually change the output, if the LDAC pin isn't shorted to ground
-  boolean setAutomaticallyLatchDual(bool _latch);
 
   void init(); //Start the SPI
 
   private:
     void _output(unsigned short _out, Channel _chan);
     int ss_pin;
-    int LDAC_pin;
     int bitwidth;
     boolean bufferVref;
     boolean gain2x; /* false -> 1x, true -> 2x */
     boolean port_write; /* use optimized port writes? won't work everywhere! */
     int spi_divider;
-    boolean automaticallyLatchDual; /* call latch() automatically after output2() has been called? */
 };
 
 #endif
