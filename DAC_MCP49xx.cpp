@@ -64,13 +64,17 @@ DAC_MCP49xx::DAC_MCP49xx(DAC_MCP49xx::Model _model, int _ss_pin) : bufferVref(fa
 
 void DAC_MCP49xx::init()
 {
-  SPI.begin();
-  /*SPI.setBitOrder(MSBFIRST);
-  SPI.setDataMode(SPI_MODE0);
-  SPI.setClockDivider(spi_divider);*/
-   SPI.beginTransaction(SPISettings(2000000000, MSBFIRST, SPI_MODE0));
+  dac_spi = & SPI;
+  dac_spi->begin();
+   dac_spi->beginTransaction(SPISettings(2000000000, MSBFIRST, SPI_MODE0));
 }
 
+void DAC_MCP49xx::init(SPIClass *_spi)
+{
+  dac_spi = _spi;
+  dac_spi->begin();
+   dac_spi->beginTransaction(SPISettings(2000000000, MSBFIRST, SPI_MODE0));
+}
 
 void DAC_MCP49xx::setBuffer(boolean _buffer)
 {
@@ -141,8 +145,8 @@ void DAC_MCP49xx::shutdown(void) {
   // between buffer and gain modes, so we'll send them so that they have the same value once we
   // exit shutdown.
   unsigned short out = (bufferVref << 14) | ((!(gain2x)) << 13); // gain == 0 means 2x, so we need to invert it
-  SPI.transfer((out & 0xff00) >> 8);
-  SPI.transfer(out & 0xff);
+  dac_spi->transfer((out & 0xff00) >> 8);
+  dac_spi->transfer(out & 0xff);
 
   // Return chip select to high
 #ifdef __AVR__
@@ -186,8 +190,8 @@ void DAC_MCP49xx::_output(unsigned short data, Channel chan) {
   uint16_t out = (chan << 15) | (this->bufferVref << 14) | ((!this->gain2x) << 13) | (1 << 12) | (data << (12 - this->bitwidth));
   
   // Send the command and data bits
-  SPI.transfer((out & 0xff00) >> 8);
-  SPI.transfer(out & 0xff);
+  dac_spi->transfer((out & 0xff00) >> 8);
+  dac_spi->transfer(out & 0xff);
 
   // Return chip select to high
 #ifdef __AVR__

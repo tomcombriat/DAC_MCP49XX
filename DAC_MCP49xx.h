@@ -49,6 +49,7 @@ class DAC_MCP49xx {
 
 
   void init(); //Start the SPI
+  void init(SPIClass * _spi); // Start with another SPI
 
   private:
     void _output(unsigned short _out, Channel _chan);
@@ -58,6 +59,7 @@ class DAC_MCP49xx {
     boolean gain2x; /* false -> 1x, true -> 2x */
     boolean port_write; /* use optimized port writes? won't work everywhere! */
     int spi_divider;
+    SPIClass * dac_spi;
 };
 
 #endif
