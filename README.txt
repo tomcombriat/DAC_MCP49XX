@@ -123,6 +123,9 @@ latch(void)  ** REMOVED
 init()
         Need to be called in setup(), for good SPI compatibility.
 
+init(& SPIClass)
+        If you want to use another SPI port.
+
 setPortWrite(bool)
 	Note: PortWrite is not supported on the Arduino Leonardo, but should work on
 	the Uno and Mega. (One could change this by changing the ports used in the code.)
