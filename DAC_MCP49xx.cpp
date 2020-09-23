@@ -1,4 +1,7 @@
 /*
+Tweak of the following library for use with STM32 and other non_AVR platforms.
+T. Combriat
+
  * Microchip MCP4901 / MCP4911 / MCP4921 / MCP4902 / MCP4912 / MCP4922 8/10/12-bit DAC driver
  * Thomas Backman, 2012-07 (made a proper library 2011-07-30, 3 weeks after initial)
  * serenity@exscape.org
